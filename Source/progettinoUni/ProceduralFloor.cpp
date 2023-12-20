@@ -24,7 +24,7 @@ void AProceduralFloor::BeginPlay()
 	FloorWidth = GetRootComponent()->GetRelativeTransform().GetScale3D().Y * 100;
 	UE_LOG(LogTemp, Warning, TEXT("FloorWidth: %d"), FloorWidth);
 	
-	ProcedurallySpawnObjects(BP_Wall, 40);
+	ProcedurallySpawnObjects(BP_Archway, 40);
 	ProcedurallySpawnObjects(BP_Pillar, 30, true);
 	ProcedurallySpawnObjects(BP_MovableBlocks, 20, true);
 	ProcedurallySpawnObjects(BP_Coin, 10, true, 50);
@@ -58,7 +58,7 @@ void AProceduralFloor::ProcedurallySpawnObjects(UClass* ObjectClass, const int32
 		FVector SpawnLocation;
 		FRotator SpawnRotation;
 		constexpr int32 DistanceFromWalls = 100;  // thickness of the edge's walls
-		if (ObjectClass == BP_Wall)
+		if (ObjectClass == BP_Archway)
 		{
 			int32 RandomSide = FMath::RandRange(0, 3);  // only 4 rotations
 			if (RandomSide == 0)
@@ -94,13 +94,13 @@ void AProceduralFloor::ProcedurallySpawnObjects(UClass* ObjectClass, const int32
 		
 		FActorSpawnParameters SpawnInfo;
 		AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>(ObjectClass, SpawnLocation, SpawnRotation, SpawnInfo);
-		UE_LOG(LogTemp, Warning, TEXT("SpawnedActor: %s. Location: %s"), *SpawnedActor->GetName(), *SpawnedActor->GetActorLocation().ToString());
+		if (SpawnedActor) UE_LOG(LogTemp, Warning, TEXT("SpawnedActor: %s. Location: %s"), *SpawnedActor->GetName(), *SpawnedActor->GetActorLocation().ToString());
 		
 		if (bCheckCollision)
 		{
 			const UStaticMeshComponent* MeshComponent = Cast<UStaticMeshComponent>(SpawnedActor->GetComponentByClass(UStaticMeshComponent::StaticClass()));
 			FVector BoxHalfExtent = MeshComponent->GetStaticMesh()->GetBoundingBox().GetExtent();
-			if (CheckOverlap(SpawnedActor, SpawnLocation, BoxHalfExtent))
+			if (IsOverlapping(SpawnedActor, SpawnLocation, BoxHalfExtent))
 			{
 				UE_LOG(LogTemp, Warning, TEXT("BoxHalfExtent: %s"), *BoxHalfExtent.ToString());
 				UE_LOG(LogTemp, Warning, TEXT("Overlap detected!"));
@@ -121,7 +121,7 @@ void AProceduralFloor::ProcedurallySpawnObjects(UClass* ObjectClass, const int32
  * @param BoxHalfExtent The half extent of the object's bounding box
  * @return TRUE Whether the object overlaps with other objects
  */
-bool AProceduralFloor::CheckOverlap(const AActor* ActorToIgnore, const FVector& SpawnLocation, const FVector& BoxHalfExtent) const
+bool AProceduralFloor::IsOverlapping(const AActor* ActorToIgnore, const FVector& SpawnLocation, const FVector& BoxHalfExtent) const
 {
 	FCollisionQueryParams CollisionParams;
 	CollisionParams.AddIgnoredActor(ActorToIgnore); // Ignore self if needed

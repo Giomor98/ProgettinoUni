@@ -35,7 +35,7 @@ private:
 	TSubclassOf<AActor> BP_Pillar;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wall", meta = (AllowPrivateAccess = "true"))
-	TSubclassOf<AActor> BP_Wall;
+	TSubclassOf<AActor> BP_Archway;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MovableBlock", meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<AActor> BP_MovableBlocks;
@@ -48,5 +48,5 @@ private:
 
 	void ProcedurallySpawnObjects(UClass* ObjectClass, int32 NumberOfObjects = 1, bool bCheckCollision = false, float ZHeight = 0) const;
 
-	bool CheckOverlap(const AActor* ActorToIgnore, const FVector& SpawnLocation, const FVector& BoxHalfExtent) const;
+	bool IsOverlapping(const AActor* ActorToIgnore, const FVector& SpawnLocation, const FVector& BoxHalfExtent) const;
 };
